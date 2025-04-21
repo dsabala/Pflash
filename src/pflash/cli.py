@@ -17,8 +17,9 @@ def cli_entrypoint():
     pass
 
 @cli_entrypoint.command()
+@click.argument("partition", type=str, nargs = -1)
 @click.option("-s", "--serial", required=True, type=str)
 @click.option("-c", "--config", required=True, type=str)
-def flash_via_ramdisk(serial, config):
+def flash_via_ramdisk(partition: tuple[str, ...], serial: str, config: str):
     """Flash board using plo RAMDISK, debugger and console"""
-    logger.info(f"Flash via RAMDISK, serial = {serial}, config = {config}")
+    logger.info(f"pflash CLI request to flash {', '.join(partition) if len(partition) > 1 else partition[0]} {'partitions' if len(partition) > 1 else 'partition'} via RAMDISK, serial = {serial}, config = {config}")
