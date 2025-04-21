@@ -1,0 +1,12 @@
+{
+    "configuration": [
+        {
+            "name": "aarch64-zynqmp-zcu104",
+            "project": "aarch64-zynqmp-zcu104"
+        },
+        {
+            "name": "aarch64-zynqmp-som",
+            "project": "aarch64-zynqmp-som"
+        }
+    ]
+}

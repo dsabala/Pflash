@@ -3,6 +3,7 @@ import sys
 from loguru import logger
 import click
 from pflash.config import load_config_entry
+from pflash.env_check import get_invocation_directory
 
 # Configuration paths
 CONFIG_DIR = os.path.expanduser("~/.config/pflash")
@@ -25,11 +26,25 @@ def cli_entrypoint():
 @click.argument("partition", type=str, nargs=-1)
 @click.option("-s", "--serial", required=True, type=str)
 @click.option("-c", "--config", required=True, type=str)
-def flash_via_ramdisk(partition: tuple[str, ...], serial: str, config: str):
+@click.option("-r", "--root", type=str)
+def flash_via_ramdisk(partition: tuple[str, ...], serial: str, config: str, root: str):
     """Flash board using plo RAMDISK, debugger and console"""
-    logger.info(f"Pflash CLI request to flash {', '.join(partition) if len(partition) > 1 else partition[0]} {'partitions' if len(partition) > 1 else 'partition'} via RAMDISK, serial = {serial}, config = {config}")
+
+    # Emit some nice log
+    partition_list = ', '.join(partition) if len(partition) > 1 else partition[0]
+    partition_label = 'partitions' if len(partition) > 1 else 'partition'
+    logger.info(
+        f"Request to flash {partition_list} {partition_label} "
+        f"via RAMDISK, serial = {serial}, config = {config}"
+    )
+
+    # Load dedicated entry from config file either internal or user defined
     try:
         config_entry = load_config_entry(CONFIG_FILE, config)
         logger.info(f"Using configuration entry: {config_entry}")
     except (FileNotFoundError, KeyError, ValueError) as e:
         logger.error(e)
+
+    # Get project root directory
+    inv_dir = get_invocation_directory(root)
+    logger.info(f"Project root: {inv_dir}")
