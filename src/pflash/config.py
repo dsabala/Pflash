@@ -18,7 +18,7 @@ def load_config_file(config_file_path: str):
         logger.error(f"Error decoding JSON configuration file: {e}")
         raise ValueError(f"Error decoding JSON configuration file: {e}")
 
-def load_config_entry(config_file_path: str, config_entry_name: str):
+def load_config_entry(config_file_path: str, config_entry_name: str) -> dict:
     """Load the single entry of JSON config file"""
 
     # First search for desired config entry in the user config file

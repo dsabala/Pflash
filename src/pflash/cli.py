@@ -4,6 +4,8 @@ from loguru import logger
 import click
 from pflash.config import load_config_entry
 from pflash.env_check import get_invocation_directory
+#from pflash.project_check import load_project_nvm
+from pflash.ramdisk_flash import ramdisk_flash
 
 # Configuration paths
 CONFIG_DIR = os.path.expanduser("~/.config/pflash")
@@ -17,34 +19,42 @@ logger.add(LOG_FILE, rotation="10 MB", retention="7 days", level="DEBUG", format
 logger.add(sys.stdout, level="INFO", format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> {message}")
 
 @click.group()
-def cli_entrypoint():
+def main():
     """pflash - Phoenix RTOS flash utility"""
     logger.debug("Pflash CLI started")
     pass
 
-@cli_entrypoint.command()
+@main.command()
 @click.argument("partition", type=str, nargs=-1)
 @click.option("-s", "--serial", required=True, type=str)
 @click.option("-c", "--config", required=True, type=str)
 @click.option("-r", "--root", type=str)
 def flash_via_ramdisk(partition: tuple[str, ...], serial: str, config: str, root: str):
-    """Flash board using plo RAMDISK, debugger and console"""
-
-    # Emit some nice log
-    partition_list = ', '.join(partition) if len(partition) > 1 else partition[0]
-    partition_label = 'partitions' if len(partition) > 1 else 'partition'
-    logger.info(
-        f"Request to flash {partition_list} {partition_label} "
-        f"via RAMDISK, serial = {serial}, config = {config}"
-    )
+    """Flash target using Plo bootloader ramdisk, debugger and console"""
 
     # Load dedicated entry from config file either internal or user defined
     try:
         config_entry = load_config_entry(CONFIG_FILE, config)
-        logger.info(f"Using configuration entry: {config_entry}")
     except (FileNotFoundError, KeyError, ValueError) as e:
         logger.error(e)
 
     # Get project root directory
     inv_dir = get_invocation_directory(root)
     logger.info(f"Project root: {inv_dir}")
+
+    ramdisk_flash(partition=partition, serial=serial, config=config, root=root)
+
+
+if __name__ == "__main__":
+    main()
+
+
+#def unused():
+#    # Get detailf of memory layout in desired projects
+#    try:
+#        nvm_layout = load_project_nvm(config_entry["project"], inv_dir)
+#        print("Memory layout:", nvm_layout)
+#    except FileNotFoundError as e:
+#        print(f"Error: {e}")
+#    except ValueError as e:
+#        print(f"Error: {e}")

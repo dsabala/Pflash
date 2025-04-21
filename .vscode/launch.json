@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Run pflash",
+            "type": "debugpy",
+            "request": "launch",
+            //"program": "${workspaceFolder}/pflash",
+            //"program": "/home/dsa/.cache/pypoetry/virtualenvs/pflash-73Q9WzvB-py3.10/bin/python",
+            "module": "pflash.cli",
+            "console": "integratedTerminal",
+            "args": [
+                "flash-via-ramdisk",
+                "--serial", "/dev/ttyUSB0",
+                "--config", "aarch64a53-zynqmp-zcu104",
+                "--root", "/home/dsa/projects/phoenix-rtos-project",
+                "plo"
+            ]
+        }
+    ]
+}
