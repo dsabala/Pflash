@@ -10,9 +10,9 @@
             "args": [
                 "flash-via-ramdisk",
                 "--serial", "/dev/ttyUSB0",
-                "--config", "aarch64a53-zynqmp-zcu104",
+                "--project", "aarch64a53-zynqmp-zcu104",
                 "--root", "/home/dsa/projects/phoenix-rtos-project",
-                "plo"
+                "plo", "kernel"
             ]
         }
     ]

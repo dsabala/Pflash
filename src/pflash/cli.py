@@ -6,23 +6,22 @@ import os
 import sys
 import click
 from loguru import logger
-
-import pflash.config as config
+from pflash.config import CONFIG_DIR, LOG_FILE
 from pflash.ramdisk_flash import ramdisk_flash
 
-os.makedirs(config.CONFIG_DIR, exist_ok=True)
+os.makedirs(CONFIG_DIR, exist_ok=True)
 logger.remove()
 logger.add(
-    config.LOG_FILE,
+    LOG_FILE,
     rotation="10 MB",
     retention="7 days",
     level="DEBUG",
-    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {message}",
 )
 logger.add(
     sys.stdout,
     level="INFO",
-    format="<level>{time:YYYY-MM-DD HH:mm:ss} | {message} </level>",
+    format="<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {message} </level>",
 )
 logger.level("INFO", color="<white>")
 logger.level("ERROR", color="<red>")
