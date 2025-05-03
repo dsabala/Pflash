@@ -9,6 +9,8 @@ import os
 import json
 from loguru import logger
 
+CONFIG_DIR = os.path.expanduser("~/.config/pflash")
+LOG_FILE = os.path.expanduser("~/.config/pflash/log.json")
 USER_CONFIG_FILE = os.path.expanduser("~/.config/pflash/config.json")
 INTERNAL_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 
@@ -42,7 +44,7 @@ def load_config_entry(config_entry_name: str) -> dict:
         configurations = user_config.get("configuration", [])
         for entry in configurations:
             if entry.get("name") == config_entry_name:
-                logger.debug(
+                logger.info(
                     f"Configuration entry '{config_entry_name}' found in user config."
                 )
                 return entry
@@ -55,17 +57,13 @@ def load_config_entry(config_entry_name: str) -> dict:
         configurations = internal_config.get("configuration", [])
         for entry in configurations:
             if entry.get("name") == config_entry_name:
-                logger.debug(
+                logger.info(
                     f"Configuration entry '{config_entry_name}' found in internal config."
                 )
                 return entry
     except FileNotFoundError:
         logger.warning(f"Internal configuration file not found: {INTERNAL_CONFIG_FILE}")
 
-    # If not found in either file, raise an error
-    logger.error(
-        f"Configuration entry '{config_entry_name}' not found in the configuration files."
-    )
     raise KeyError(
         f"Configuration entry '{config_entry_name}' not found in the configuration files."
     )

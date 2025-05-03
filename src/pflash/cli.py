@@ -6,17 +6,14 @@ import os
 import sys
 import click
 from loguru import logger
-from pflash.config import load_config_entry
-from pflash.project import get_invocation_directory
+
+import pflash.config as config
 from pflash.ramdisk_flash import ramdisk_flash
 
-CONFIG_DIR = os.path.expanduser("~/.config/pflash")
-LOG_FILE = os.path.expanduser("~/.config/pflash/log.json")
-
-os.makedirs(CONFIG_DIR, exist_ok=True)
+os.makedirs(config.CONFIG_DIR, exist_ok=True)
 logger.remove()
 logger.add(
-    LOG_FILE,
+    config.LOG_FILE,
     rotation="10 MB",
     retention="7 days",
     level="DEBUG",
@@ -25,8 +22,10 @@ logger.add(
 logger.add(
     sys.stdout,
     level="INFO",
-    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> {message}",
+    format="<level>{time:YYYY-MM-DD HH:mm:ss} | {message} </level>",
 )
+logger.level("INFO", color="<white>")
+logger.level("ERROR", color="<red>")
 
 
 @click.group()
@@ -35,23 +34,13 @@ def cli_entrypoint():
 
 
 @cli_entrypoint.command()
-@click.argument("partition", type=str, nargs=-1)
-@click.option("-s", "--serial", required=True, type=str)
-@click.option("-c", "--config", required=True, type=str)
+@click.argument("parts", type=str, nargs=-1)
+@click.option("-s", "--serial", "ser", required=True, type=str)
+@click.option("-p", "--project", "prj", required=True, type=str)
 @click.option("-r", "--root", type=str)
-def flash_via_ramdisk(partition: tuple[str, ...], serial: str, config: str, root: str):
+def flash_via_ramdisk(parts: tuple[str, ...], ser: str, prj: str, root: str):
     """Flash target using ramdisk, debugger and console"""
-
-    try:
-        config_entry = load_config_entry(config)
-    except (FileNotFoundError, KeyError, ValueError) as e:
-        logger.error(e)
-
-    # Get project root directory
-    inv_dir = get_invocation_directory(root)
-    logger.info(f"Project root: {inv_dir}")
-
-    ramdisk_flash(partition=partition, serial=serial, config=config_entry, root=root)
+    ramdisk_flash(parts=parts, ser=ser, prj=prj, root=root)
 
 
 if __name__ == "__main__":
