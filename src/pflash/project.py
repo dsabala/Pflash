@@ -7,6 +7,7 @@ import pathlib
 from dataclasses import dataclass
 import yaml
 
+
 def get_inv_directory(rootdir: str):
     """Return the directory where the script was invoked."""
     if rootdir:

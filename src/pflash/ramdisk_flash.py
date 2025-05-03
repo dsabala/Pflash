@@ -7,17 +7,18 @@ from loguru import logger
 
 from pflash.project import get_inv_directory, get_flash_jobs_list
 from pflash.config import load_config_entry
+from pflash.plo import boot_plo_naively
 
 
-def ramdisk_flash(parts: tuple[str, ...], ser: str, prj: str, root: str):
+def ramdisk_flash(parts: tuple[str, ...], ser: str, prj: str, root: str, dry: bool):
     """Flash-via-ramdisk functionality main function"""
 
-    logger.info("Command line request to flash via ramdisk")
+    logger.info(f"Command line request to flash via ramdisk, dry run: {dry}")
     logger.info(f"Project name: {prj}")
 
     # 1. Find configuration
     try:
-        config_entry = load_config_entry(prj)
+        cfg = load_config_entry(prj)
     except (FileNotFoundError, KeyError, ValueError) as e:
         logger.error(e)
         sys.exit(1)
@@ -33,12 +34,18 @@ def ramdisk_flash(parts: tuple[str, ...], ser: str, prj: str, root: str):
         sys.exit(1)
 
     # 4. Ensure target is in bootloader
+    try:
+        baudrate = int(cfg["plo"]["baudrate"])
+        boot_plo_naively(port=ser, baud=baudrate, dry=dry)
+    except Exception as e:
+        logger.error(e)
+        sys.exit(1)
 
     # 5. Perform all jobs (flash all mentioned partitions)
     for flash_job in flash_jobs:
         logger.info(f"Flashing partition {flash_job.name}")
 
-        # 6. USe JTAG probe to upload binary image to ramdisk
+        # 6. Use JTAG probe to upload binary image to ramdisk
 
         # 7. Send command to PLO to copy image from ramdisk to non volatile memory
 

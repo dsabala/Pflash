@@ -37,9 +37,10 @@ def cli_entrypoint():
 @click.option("-s", "--serial", "ser", required=True, type=str)
 @click.option("-p", "--project", "prj", required=True, type=str)
 @click.option("-r", "--root", type=str)
-def flash_via_ramdisk(parts: tuple[str, ...], ser: str, prj: str, root: str):
+@click.option("-d", "--dry", is_flag=True, default=False, help="Dry run")
+def flash_via_ramdisk(parts: tuple[str, ...], ser: str, prj: str, root: str, dry: bool):
     """Flash target using ramdisk, debugger and console"""
-    ramdisk_flash(parts=parts, ser=ser, prj=prj, root=root)
+    ramdisk_flash(parts=parts, ser=ser, prj=prj, root=root, dry=dry)
 
 
 if __name__ == "__main__":

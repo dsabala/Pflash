@@ -2,11 +2,17 @@
     "configuration": [
         {
             "name": "aarch64a53-zynqmp-zcu104",
-            "project": "aarch64a53-zynqmp-zcu104"
+            "project": "aarch64a53-zynqmp-zcu104",
+            "plo": {
+                "baudrate": "115200"
+            }
         },
         {
             "name": "aarch64a53-zynqmp-som",
-            "project": "aarch64a53-zynqmp-som"
+            "project": "aarch64a53-zynqmp-som",
+            "plo": {
+                "baudrate": "115200"
+            }
         }
     ]
 }
