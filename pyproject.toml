@@ -19,6 +19,13 @@ packages = [{include = "pflash", from = "src"}]
 [tool.poetry.scripts]
 pflash = "pflash.cli:cli_entrypoint"
 
+[tool.poetry.group.dev.dependencies]
+pylint = "^3.3.6"
+black = "^25.1.0"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
