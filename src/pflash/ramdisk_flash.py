@@ -7,7 +7,7 @@ from loguru import logger
 
 from pflash.project import get_inv_directory, get_flash_jobs_list
 from pflash.config import load_config_entry
-from pflash.plo import boot_plo_naively
+from pflash.plo import boot_plo_naively, plo_copy
 from pflash.openocd import which_openocd, upload_to_ram
 
 
@@ -57,5 +57,4 @@ def ramdisk_flash(parts: tuple[str, ...], ser: str, prj: str, root: str, dry: bo
         upload_to_ram("target/jlink", "target/zcu104", "/dev", 1000, dry=dry)
 
         # 7. Send command to PLO to copy image from ramdisk to non volatile memory
-
-    # 8. Show statistics
+        plo_copy(port=ser, baud=115200, size=1000, alias="flash0", offset=0, dry=dry)

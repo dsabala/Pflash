@@ -3,13 +3,13 @@ Plo bootloader management module
 """
 
 import serial
+import time
 from loguru import logger
 
 
 def boot_plo_naively(port: str, baud: int, dry: bool):
     """Make sure target is stopped in plo bootloader"""
 
-    # If this is dry run then do not continue
     if dry:
         logger.info("Dry run, skip driving target into plo...")
         return
@@ -39,3 +39,25 @@ def boot_plo_naively(port: str, baud: int, dry: bool):
                 ser.write("\n".encode())
                 logger.info("Target locked in bootloader")
                 break
+
+def plo_copy(port: str, baud: int, size: int, alias: str, offset: int, dry: bool):
+    copy_command = f"copy ramdisk 0 {size} {alias} {offset} {size}"
+    logger.info(f"Bootloader 'plo' copy command: {copy_command}")
+
+    if dry:
+        logger.info("Dry run, skip plo copy command")
+        return
+
+    start = time.time()
+    with serial.Serial(port, baudrate=baud, timeout=60) as ser:
+        ser.write(copy_command.encode())
+        while(1):
+            expected_char = "%".encode()
+            recv = ser.read_until(expected=expected_char).decode()
+            print(f"Recv = {recv}")
+            if "(plo)%" in recv:
+                break
+    end = time.time()
+    duration = end - start
+    logger.info(f"Successfully copied image to flash in {duration}s")
+    return
