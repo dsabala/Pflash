@@ -21,21 +21,13 @@ def which_openocd() -> Path:
 
 @dataclass
 class OpenOcdUploadParameters:
-    """Parameters required for uploading a binary image to the target's RAM using OpenOCD
-
-    Attributes:
-        target_config (Path): Path to the target configuration file
-        board_config (Path): Path to the board configuration file
-        binary_image (Path): Path to the binary image to be uploaded
-        ram_address (int): The RAM address where the binary image will be loaded
-        timeout (int, optional): Timeout[s] for the OpenOCD subprocess
-    """
+    """Parameters required for uploading a binary image to the target's RAM"""
 
     target_config: str
     board_config: Path
     binary_image: Path
-    ram_address: int
-    timeout_s: int = None
+    ramdisk_address: int
+    upload_timeout_s: int = None
 
 
 def upload_to_ram(parameters: OpenOcdUploadParameters, dry: bool):
@@ -50,20 +42,20 @@ def upload_to_ram(parameters: OpenOcdUploadParameters, dry: bool):
         '-c', 'reset_config srst_only',
         '-c', 'init',
         '-c', 'halt',
-        '-c', f'load_image "{parameters.binary_image}" {parameters.ram_address} bin',
+        '-c', f'load_image "{parameters.binary_image}" {parameters.ramdisk_address} bin',
         '-c', 'resume',
         '-c', 'exit'
     ]
     # fmt: on
     openocd_cmd_str = " ".join(str(arg) for arg in openocd_cmd)
-    logger.info(f"OpenOCD cmd = {openocd_cmd_str}")
+    logger.info(f"OpenOCD command = {openocd_cmd_str}")
 
     if dry:
         return
 
     try:
-        subprocess.run(openocd_cmd, check=True, timeout=parameters.timeout_s)
+        subprocess.run(openocd_cmd, check=True, timeout=parameters.upload_timeout_s)
     except subprocess.TimeoutExpired as e:
         raise OpenOcdTimeout(
-            f"OpenOCD command timed out after {parameters.timeout_s} s"
+            f"OpenOCD command timed out after {parameters.upload_timeout_s} s"
         ) from e

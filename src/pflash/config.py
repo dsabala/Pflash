@@ -14,6 +14,7 @@ LOG_FILE = CONFIG_DIR / "log.txt"
 USER_CONFIG_FILE = CONFIG_DIR / "config.json"
 INTERNAL_CONFIG_FILE = Path(__file__).parent / "assets" / "config.json"
 
+
 def load_config_file(config_file_path: str):
     """Load the JSON configuration file."""
     try:
