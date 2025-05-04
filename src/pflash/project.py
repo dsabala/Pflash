@@ -23,6 +23,7 @@ class Partition:
     """
 
     name: str
+    filename: str
     offs: int
     block_device: str
     block_size: int
@@ -56,7 +57,7 @@ def get_flash_jobs_list(
         with open(nvm_yaml_path, "r", encoding="utf-8") as file:
             data = yaml.load(file, Loader=yaml.Loader)
     except Exception as e:
-        raise ValueError("Error decoding JSON configuration file") from e
+        raise ValueError("Error decoding YAML configuration file") from e
 
     # Parse partitions list
     partitions = []
@@ -65,20 +66,28 @@ def get_flash_jobs_list(
         for part_info in device_info.get("partitions", []):
             partition = Partition(
                 name=part_info.get("name"),
+                filename="part_" + part_info.get("name") + ".img",
                 offs=parse_value(part_info.get("offs")),
                 size=parse_value(part_info.get("size")),
                 block_device=device_name,
                 block_size=parse_value(device_info.get("block_size")),
-                device_size=parse_value(device_info.get("size")),
+                device_size=device_size,
                 padding_byte=parse_value(device_info.get("padding_byte")),
             )
-            if partition.name in parts:
-                partitions.append(partition)
-        partitions.sort(key=lambda p: p.offs)
-        for i, partition in enumerate(partitions):
-            if partition.size is None:
-                if i < len(partitions) - 1:
-                    partition.size = partitions[i + 1].offs - partition.offs
-                else:
-                    partition.size = device_size - partition.offs
-    return partitions
+            partitions.append(partition)
+
+    # Sort partitions by offset
+    partitions.sort(key=lambda p: p.offs)
+
+    # Calculate sizes for partitions with undefined size
+    for i, partition in enumerate(partitions):
+        if partition.size is None:
+            if i < len(partitions) - 1:
+                partition.size = partitions[i + 1].offs - partition.offs
+            else:
+                partition.size = partition.device_size - partition.offs
+
+    # Filter partitions based on the provided names
+    filtered_partitions = [p for p in partitions if p.name in parts]
+
+    return filtered_partitions

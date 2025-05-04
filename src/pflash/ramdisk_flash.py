@@ -47,25 +47,22 @@ def ramdisk_flash(parts: tuple[str, ...], ser: str, prj: str, root: str, dry: bo
         sys.exit(1)
 
     # 4. Ensure target is in bootloader
-    try:
-        boot_plo_naively(port=ser, baud=params.baudrate, dry=dry)
-    except Exception as e:
-        logger.error(e)
-        sys.exit(1)
+    boot_plo_naively(port=ser, baud=params.baudrate, dry=dry)
 
     # 5. Perform all jobs (flash all mentioned partitions)
     for flash_job in flash_jobs:
         logger.info(f"Flashing partition {flash_job.name}")
+        binary_image_path = Path(root) / "_boot" / params.project / flash_job.filename
 
         # 6. Use JTAG probe to upload binary image to ramdisk
         parameters = OpenOcdUploadParameters(
             target_config=params.target_config,
             board_config=params.board_config,
-            binary_image=Path("binary.img"),
+            binary_image=binary_image_path,
             ramdisk_address=params.ramdisk_address,
             upload_timeout_s=params.upload_timeout_s,
         )
         upload_to_ram(parameters=parameters, dry=dry)
 
         # 7. Send command to PLO to copy image from ramdisk to non volatile memory
-        plo_copy(port=ser, baud=115200, size=1000, alias="flash0", offset=0, dry=dry)
+        plo_copy(port=ser, baud=params.baudrate, size=flash_job.size, alias=flash_job.block_device, offset=flash_job.offs, dry=dry)
