@@ -3,26 +3,24 @@ This module implements flash-via-ramdisk functionality
 """
 
 import sys
+from pathlib import Path
 from loguru import logger
 
 from pflash.project import get_inv_directory, get_flash_jobs_list
 from pflash.config import load_config_entry
 from pflash.plo import boot_plo_naively, plo_copy
-from pflash.openocd import which_openocd, upload_to_ram
+from pflash.openocd import which_openocd, upload_to_ram, OpenOcdUploadParameters
+from pflash.exceptions import handle_exceptions
 
 
+@handle_exceptions
 def ramdisk_flash(parts: tuple[str, ...], ser: str, prj: str, root: str, dry: bool):
     """Flash-via-ramdisk functionality main function"""
 
-    logger.info(f"Command line request to flash via ramdisk, dry run: {dry}")
-    logger.info(f"Project name: {prj}")
+    logger.info(f"Request to flash via ramdisk project: {prj}, dry run: {dry}")
 
     # 0. Check prerequisites
-    try:
-        which_openocd()
-    except FileNotFoundError as e:
-        logger.error(e)
-        sys.exit(1)
+    which_openocd()
 
     # 1. Find configuration
     try:
@@ -54,7 +52,14 @@ def ramdisk_flash(parts: tuple[str, ...], ser: str, prj: str, root: str, dry: bo
         logger.info(f"Flashing partition {flash_job.name}")
 
         # 6. Use JTAG probe to upload binary image to ramdisk
-        upload_to_ram("target/jlink", "target/zcu104", "/dev", 1000, dry=dry)
+        parameters = OpenOcdUploadParameters(
+            target_config=Path("target/zynq_7000.cfg"),
+            board_config=Path("target/zynq_7000.cfg"),
+            binary_image=Path("binary.img"),
+            ram_address=0x80000000,
+            timeout_s=30,
+        )
+        upload_to_ram(parameters=parameters, dry=dry)
 
         # 7. Send command to PLO to copy image from ramdisk to non volatile memory
         plo_copy(port=ser, baud=115200, size=1000, alias="flash0", offset=0, dry=dry)

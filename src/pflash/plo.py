@@ -40,6 +40,7 @@ def boot_plo_naively(port: str, baud: int, dry: bool):
                 logger.info("Target locked in bootloader")
                 break
 
+
 def plo_copy(port: str, baud: int, size: int, alias: str, offset: int, dry: bool):
     copy_command = f"copy ramdisk 0 {size} {alias} {offset} {size}"
     logger.info(f"Bootloader 'plo' copy command: {copy_command}")
@@ -51,7 +52,7 @@ def plo_copy(port: str, baud: int, size: int, alias: str, offset: int, dry: bool
     start = time.time()
     with serial.Serial(port, baudrate=baud, timeout=60) as ser:
         ser.write(copy_command.encode())
-        while(1):
+        while 1:
             expected_char = "%".encode()
             recv = ser.read_until(expected=expected_char).decode()
             print(f"Recv = {recv}")
