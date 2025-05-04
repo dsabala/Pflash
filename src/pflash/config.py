@@ -5,15 +5,14 @@ from JSON configuration files. It supports both user-defined configuration files
 with the application.
 """
 
-import os
 import json
+from pathlib import Path
 from loguru import logger
 
-CONFIG_DIR = os.path.expanduser("~/.config/pflash")
-LOG_FILE = os.path.expanduser("~/.config/pflash/log.json")
-USER_CONFIG_FILE = os.path.expanduser("~/.config/pflash/config.json")
-INTERNAL_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
-
+CONFIG_DIR = Path.home() / ".config/pflash"
+LOG_FILE = CONFIG_DIR / "log.txt"
+USER_CONFIG_FILE = CONFIG_DIR / "config.json"
+INTERNAL_CONFIG_FILE = Path(__file__).parent / "assets" / "config.json"
 
 def load_config_file(config_file_path: str):
     """Load the JSON configuration file."""

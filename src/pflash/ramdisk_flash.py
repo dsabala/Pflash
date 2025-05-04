@@ -16,20 +16,12 @@ from pflash.exceptions import handle_exceptions
 @handle_exceptions
 def ramdisk_flash(parts: tuple[str, ...], ser: str, prj: str, root: str, dry: bool):
     """Flash-via-ramdisk functionality main function"""
-
     logger.info(f"Request to flash via ramdisk project: {prj}, dry run: {dry}")
 
-    # 0. Check prerequisites
-    which_openocd()
+    # 1. Load part of user defined or internal config file appropriate for this project
+    cfg = load_config_entry(prj)
 
-    # 1. Find configuration
-    try:
-        cfg = load_config_entry(prj)
-    except (FileNotFoundError, KeyError, ValueError) as e:
-        logger.error(e)
-        sys.exit(1)
-
-    # 2. Find out project directory
+    # 2. Find out project directory, run program where it was called if no --root passed
     root_dir = get_inv_directory(root)
     logger.info(f"Project root: {root_dir}")
 
