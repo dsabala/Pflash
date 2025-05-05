@@ -37,8 +37,8 @@ def upload_to_ram(parameters: OpenOcdUploadParameters, dry: bool):
     # fmt: off
     openocd_cmd = [
         f'{which_openocd()}',
-        '-f', f'{parameters.target_config}',
         '-f', f'{parameters.board_config}',
+        '-f', f'{parameters.target_config}',
         '-c', 'reset_config srst_only',
         '-c', 'init',
         '-c', 'halt',
@@ -48,14 +48,32 @@ def upload_to_ram(parameters: OpenOcdUploadParameters, dry: bool):
     ]
     # fmt: on
     openocd_cmd_str = " ".join(str(arg) for arg in openocd_cmd)
-    logger.info(f"OpenOCD command = {openocd_cmd_str}")
+    logger.debug(f"OpenOCD command = {openocd_cmd_str}")
 
     if dry:
         return
 
     try:
-        subprocess.run(openocd_cmd, check=True, timeout=parameters.upload_timeout_s)
+        retval = subprocess.run(
+            openocd_cmd,
+            check=True,
+            timeout=parameters.upload_timeout_s,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        #logger.info(f"OpenOCD stdout:\n{retval.stdout}")
+        #logger.info(f"OpenOCD stderr:\n{retval.stderr}")
     except subprocess.TimeoutExpired as e:
+        logger.error(f"OpenOCD command timed out after {parameters.upload_timeout_s} s")
+        logger.error(f"OpenOCD stdout:\n{e.stdout}")
+        logger.error(f"OpenOCD stderr:\n{e.stderr}")
         raise OpenOcdTimeout(
             f"OpenOCD command timed out after {parameters.upload_timeout_s} s"
         ) from e
+    except subprocess.CalledProcessError as e:
+        logger.error("OpenOCD command failed!")
+        logger.error(f"OpenOCD stdout:\n{e.stdout}")
+        logger.error(f"OpenOCD stderr:\n{e.stderr}")
+        raise
