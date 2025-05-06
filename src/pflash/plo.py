@@ -19,7 +19,7 @@ def boot_plo_naively(port: str, baud: int, dry: bool, total_timeout: int = 10):
     try:
         with serial.Serial(port, baudrate=baud, timeout=0.5) as ser:
             ser.reset_input_buffer()
-            ser.write(b"\n")
+            ser.write(b" \n")
             found_plo = False
             found_psh = False
 
