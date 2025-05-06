@@ -6,7 +6,7 @@ authors = [
     {name = "Dariusz Sabała",email = "70911794+dsabala@users.noreply.github.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.10 <4.0"
+requires-python = ">=3.10,<4"
 dependencies = [
     "click (>=8.1.8,<9.0.0)",
     "loguru (>=0.7.3,<0.8.0)",
@@ -23,6 +23,7 @@ pflash = "pflash.cli:cli_entrypoint"
 [tool.poetry.group.dev.dependencies]
 pylint = "^3.3.6"
 black = "^25.1.0"
+ruff = "^0.11.8"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
