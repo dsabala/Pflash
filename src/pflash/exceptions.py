@@ -9,6 +9,10 @@ from loguru import logger
 class PflashError(Exception):
     """Base class for all pflash-related exceptions"""
 
+    def __init__(self, message: str):
+        logger.error(message)
+        sys.exit(1)
+
 
 class LackOfPrerequisite(PflashError):
     """Raised when system lacks some prerequisite"""
@@ -32,22 +36,3 @@ class OpenOcdFail(PflashError):
 
 class BootloaderError(PflashError):
     """Raised when there is an issue with the bootloader"""
-
-
-def handle_exceptions(command_function):
-    """
-    Decorator to handle exceptions for CLI commands.
-    This ensures consistent error handling across all commands.
-    """
-
-    def wrapper(*args, **kwargs):
-        try:
-            return command_function(*args, **kwargs)
-        except LackOfPrerequisite as e:
-            logger.error(f"Prerequisite not fulfilled: {e}")
-            sys.exit(1)
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-            sys.exit(1)
-
-    return wrapper

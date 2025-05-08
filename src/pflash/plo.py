@@ -11,7 +11,6 @@ def boot_plo_naively(port: str, baud: int, dry: bool, total_timeout: int = 10):
     """Make sure target is stopped in plo bootloader"""
 
     if dry:
-        logger.info("Dry run, skip driving target into plo...")
         return
 
     logger.info("Checking if target is locked in bootloader...")
@@ -71,7 +70,6 @@ def boot_plo_naively(port: str, baud: int, dry: bool, total_timeout: int = 10):
         raise
 
 
-
 def plo_copy(
     port: str,
     baud: int,
@@ -82,10 +80,9 @@ def plo_copy(
     total_timeout: int = 180,
 ):
     copy_command = f"copy ramdisk 0 {size} {alias} {offset} {size}"
-    logger.info(f"Bootloader 'plo' copy command: {copy_command}")
+    logger.info(f"Send copy command to plo: {copy_command}")
 
     if dry:
-        logger.info("Dry run, skip plo copy command")
         return
 
     start = time.time()

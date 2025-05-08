@@ -28,7 +28,6 @@ class Partition:
     block_device: str
     block_size: int
     device_size: int
-    padding_byte: int
     size: int
 
 
@@ -72,7 +71,6 @@ def get_flash_jobs_list(
                 block_device=device_name,
                 block_size=parse_value(device_info.get("block_size")),
                 device_size=device_size,
-                padding_byte=parse_value(device_info.get("padding_byte")),
             )
             partitions.append(partition)
 

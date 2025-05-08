@@ -8,6 +8,7 @@ with the application.
 import json
 from pathlib import Path
 from loguru import logger
+from pflash.exceptions import ConfigNotFoundError, InvalidConfigError
 
 CONFIG_DIR = Path.home() / ".config/pflash"
 LOG_FILE = CONFIG_DIR / "log.txt"
@@ -15,55 +16,67 @@ USER_CONFIG_FILE = CONFIG_DIR / "config.json"
 INTERNAL_CONFIG_FILE = Path(__file__).parent / "assets" / "config.json"
 
 
-def load_config_file(config_file_path: str):
-    """Load the JSON configuration file."""
-    try:
-        with open(config_file_path, "r", encoding="utf-8") as file:
-            config_data = json.load(file)
-            logger.debug(f"Configuration loaded: {config_data}")
-            return config_data
-    except FileNotFoundError as e:
-        logger.error(f"Configuration file not found: {config_file_path}")
-        raise e
-    except json.JSONDecodeError as e:
-        logger.error(f"Error decoding JSON configuration file: {e}")
-        raise ValueError(f"Error decoding JSON configuration file: {e}") from e
-
-
-def load_config_entry(config_entry_name: str) -> dict:
+def load_config_file(file_path: Path) -> dict:
     """
-    Returns a platform configuration dictionary containing all neccessary data
+    Load the JSON configuration file
 
     Returns:
-        dict: A configuration entry with 'name' equal to config_entry_name
+        dict: Parsed JSON data
+
+    Raises:
+        ConfigNotFoundError: If the configuration file is not found
+        InvalidConfigError: If the configuration file contains invalid JSON
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            config_data = json.load(file)
+            logger.debug(f"Configuration loaded from {file_path}: {config_data}")
+            return config_data
+    except FileNotFoundError as e:
+        raise ConfigNotFoundError(f"Configuration file not found: {file_path}") from e
+    except json.JSONDecodeError as e:
+        raise InvalidConfigError(f"Error decoding JSON file {file_path}") from e
+
+
+def load_config_entry(entry_name: str) -> dict:
+    """
+    Retrieve a configuration entry by name
+
+    Args:
+        entry_name (str): The name of the configuration entry to retrieve
+
+    Returns:
+        dict: A configuration entry with 'name' equal to entry_name
+
+    Raises:
+        ConfigNotFoundError: If the configuration entry is not found in any configuration file
     """
 
-    # First search for desired config entry in the user config file
-    try:
-        user_config = load_config_file(USER_CONFIG_FILE)
-        configurations = user_config.get("configuration", [])
+    # Helper function to search for an entry in a configuration file
+    def find_entry(file_path: Path) -> dict:
+        config_data = load_config_file(file_path)
+        configurations = config_data.get("configuration", [])
         for entry in configurations:
-            if entry.get("name") == config_entry_name:
-                logger.info(
-                    f"Configuration entry '{config_entry_name}' found in user config."
-                )
+            if entry.get("name") == entry_name:
                 return entry
-    except FileNotFoundError:
-        logger.error(f"User configuration file not found: {USER_CONFIG_FILE}")
+        return None
 
-    # If not found, check the internal configuration file
+    # Search in user configuration file
     try:
-        internal_config = load_config_file(INTERNAL_CONFIG_FILE)
-        configurations = internal_config.get("configuration", [])
-        for entry in configurations:
-            if entry.get("name") == config_entry_name:
-                logger.info(
-                    f"Configuration entry '{config_entry_name}' found in internal config."
-                )
-                return entry
-    except FileNotFoundError:
-        logger.warning(f"Internal configuration file not found: {INTERNAL_CONFIG_FILE}")
+        entry = find_entry(USER_CONFIG_FILE)
+        if entry:
+            logger.info(f"Configuration entry '{entry_name}' found in user config")
+            return entry
+    except ConfigNotFoundError:
+        logger.info(f"User configuration file not found: {USER_CONFIG_FILE}")
 
-    raise KeyError(
-        f"Configuration entry '{config_entry_name}' not found in the configuration files."
+    # Search in internal configuration file
+    entry = find_entry(INTERNAL_CONFIG_FILE)
+    if entry:
+        logger.info(f"Configuration entry '{entry_name}' found in internal config")
+        return entry
+
+    # Raise an error if the entry is not found in either file
+    raise ConfigNotFoundError(
+        f"Configuration '{entry_name}' not found in both user and internal config files"
     )

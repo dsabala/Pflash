@@ -24,7 +24,7 @@ logger.add(
 logger.add(
     sys.stdout,
     level="INFO",
-    format="<level>{time:HH:mm:ss} {message}</level>",
+    format="<level>{time:HH:mm:ss} {level} {message}</level>",
 )
 logger.level("INFO", color="<white>")
 logger.level("ERROR", color="<red>")
