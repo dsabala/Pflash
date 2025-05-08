@@ -1,9 +1,8 @@
 """
 Plo bootloader management module
 """
-
-import serial
 import time
+import serial
 from loguru import logger
 
 
@@ -79,8 +78,9 @@ def plo_copy(
     dry: bool,
     total_timeout: int = 180,
 ):
+    """Send 'copy' command to plo over serial interface"""
     copy_command = f"copy ramdisk 0 {size} {alias} {offset} {size}"
-    logger.info(f"Send copy command to plo: {copy_command}")
+    logger.debug(f"Send copy command to plo: {copy_command}")
 
     if dry:
         return

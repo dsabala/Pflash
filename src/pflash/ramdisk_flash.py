@@ -12,8 +12,8 @@ from pflash.plo import boot_plo_naively, plo_copy
 from pflash.openocd import upload, UploadParameters
 
 
-class RamdiskFlashParameters:
-    """Data class containing operation parameters parsed from config file"""
+class RamdiskFlashParameters: # pylint: disable=too-few-public-methods
+    """Operation parameters parsed from config file"""
 
     def __init__(self, cfg_entry: dict):
         self.project: str = cfg_entry["project"]
@@ -21,7 +21,7 @@ class RamdiskFlashParameters:
         self.reboot_timeout_s: int = int(cfg_entry["console"]["reboot_timeout_s"])
         self.target_config: Path = Path(cfg_entry["openocd"]["target_config"])
         cfg_dir = Path(__file__).parent / "assets" / "openocd"
-        self.board_config: Path = cfg_dir / Path(cfg_entry["openocd"]["board_config"])
+        self.board_config: Path = cfg_dir / cfg_entry["openocd"]["board_config"]
         self.upload_timeout_s = cfg_entry["openocd"]["upload_timeout_s"]
         self.ramdisk_address = cfg_entry["ramdisk_flash"]["ramdisk_address"]
 

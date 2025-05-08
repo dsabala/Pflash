@@ -32,7 +32,7 @@ class Partition:
 
 
 def parse_value(value):
-    """Convert hexadecimal strings to integers"""
+    """Convert hexadecimal strings to integers."""
     if isinstance(value, str) and value.startswith("0x"):
         return int(value, 16)
     return value

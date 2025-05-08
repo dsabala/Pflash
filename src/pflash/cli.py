@@ -12,7 +12,7 @@ from pflash.ramdisk_flash import ramdisk_flash
 # Ensure the configuration directory exists
 os.makedirs(CONFIG_DIR, exist_ok=True)
 
-# Configure logging
+# Add verbose text file logging
 logger.remove()
 logger.add(
     LOG_FILE,
@@ -21,18 +21,39 @@ logger.add(
     level="DEBUG",
     format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {message}",
 )
-logger.add(
-    sys.stdout,
-    level="INFO",
-    format="<level>{time:HH:mm:ss} {level} {message}</level>",
-)
-logger.level("INFO", color="<white>")
-logger.level("ERROR", color="<red>")
 
 
 @click.group()
-def cli_entrypoint():
+@click.option(
+    "-v",
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="Enable verbose output (debug logs on console).",
+)
+@click.option(
+    "-d",
+    "--dry",
+    is_flag=True,
+    default=False,
+    help="Perform a dry run without making any changes.",
+)
+@click.pass_context
+def cli_entrypoint(ctx: click.Context = None, verbose: bool = False, dry: bool = False):
     """pflash - Phoenix RTOS Flash Utility"""
+
+    # Pass generic flags like --verbose or --dry using context
+    ctx.ensure_object(dict)
+    ctx.obj["dry"] = dry
+
+    # Add console logging
+    logger.add(
+        sys.stdout,
+        level="DEBUG" if verbose else "INFO",
+        format="<level>{time:HH:mm:ss} {level} {message}</level>",
+    )
+    if dry:
+        logger.info("Dry run mode enabled. No changes will be made.")
 
 
 @cli_entrypoint.command(
@@ -68,18 +89,10 @@ def cli_entrypoint():
     "-r",
     "--root",
     type=str,
-    help="Path to the phoenix-rtos-project directory.",
+    help="Path to the phoenix-rtos-project directory. If not passed it fallback to invokation dir",
 )
-@click.option(
-    "-d",
-    "--dry",
-    is_flag=True,
-    default=False,
-    help="Perform a dry run without making any changes.",
-)
-def flash_via_ramdisk(
-    parts: tuple[str, ...], cnsl: str, prj: str, root: str, dry: bool
-):
+@click.pass_context
+def flash_via_ramdisk(ctx, parts: tuple[str, ...], cnsl: str, prj: str, root: str):
     """
     Flash target device using ramdisk, debugger, and console.
 
@@ -91,7 +104,7 @@ def flash_via_ramdisk(
       - Uploads the binary image to the target's RAM using OpenOCD.
       - Instructs PLO to copy the image from RAM to flash memory.
     """
-    ramdisk_flash(parts=parts, cnsl=cnsl, prj=prj, root=root, dry=dry)
+    ramdisk_flash(parts=parts, cnsl=cnsl, prj=prj, root=root, dry=ctx.obj["dry"])
 
 
 if __name__ == "__main__":

@@ -74,7 +74,7 @@ def upload(parameters: UploadParameters, dry: bool):
     ]
     # fmt: on
     openocd_cmd_str = " ".join(openocd_cmd)
-    logger.info(f"OpenOCD command: {openocd_cmd_str}")
+    logger.debug(f"OpenOCD command: {openocd_cmd_str}")
 
     if dry:
         return
