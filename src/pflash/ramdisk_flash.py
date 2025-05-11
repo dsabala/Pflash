@@ -28,7 +28,7 @@ class RamdiskFlashParameters: # pylint: disable=too-few-public-methods
 
 def ramdisk_flash(parts: tuple[str, ...], cnsl: str, prj: str, root: str, dry: bool):
     """Flash-via-ramdisk functionality main function"""
-    logger.debug(f"Request to flash via ramdisk project: {prj}, dry run: {dry}")
+    logger.debug(f"Request to flash via ramdisk, project: {prj}")
 
     # 1. Load part of user defined or internal config file appropriate for this project
     cfg_entry = load_config_entry(prj)
@@ -36,7 +36,6 @@ def ramdisk_flash(parts: tuple[str, ...], cnsl: str, prj: str, root: str, dry: b
 
     # 2. Find out project directory, run program where it was called if no --root passed
     root_dir = get_inv_directory(root)
-    logger.debug(f"Project root: {root_dir}")
 
     # 3. Acquire some knowledge about job to do
     flash_jobs = get_flash_jobs_list(prj=prj, root=root_dir, parts=parts)
@@ -49,7 +48,6 @@ def ramdisk_flash(parts: tuple[str, ...], cnsl: str, prj: str, root: str, dry: b
 
     # 5. Perform all jobs (flash all mentioned partitions)
     for flash_job in flash_jobs:
-        logger.info(f"Trying to flashing partition: {flash_job.name}...")
         binary_image_path = (
             Path(root_dir) / "_boot" / params.project / flash_job.filename
         )

@@ -4,6 +4,7 @@ OpenOCD subprocess run module
 
 import shutil
 import subprocess
+import time
 from pathlib import Path
 from dataclasses import dataclass
 from loguru import logger
@@ -59,6 +60,8 @@ def upload(parameters: UploadParameters, dry: bool):
         OpenOcdTimeout: If the OpenOCD command times out
         OpenOcdFail: If the OpenOCD command fails with a non-zero return code
     """
+    logger.info(f"Uploading {parameters.binary_image.name} binary with OpenOCD...")
+
     # Form the OpenOCD command
     # fmt: off
     openocd_cmd = [
@@ -81,6 +84,7 @@ def upload(parameters: UploadParameters, dry: bool):
 
     try:
         # Run the OpenOCD command
+        start = time.time()
         result = subprocess.run(
             openocd_cmd,
             check=True,
@@ -89,7 +93,8 @@ def upload(parameters: UploadParameters, dry: bool):
             stderr=subprocess.PIPE,
             text=True,
         )
-        logger.info("OpenOCD command completed successfully")
+        duration = time.time() - start
+        logger.success(f"OpenOCD command completed successfully in {duration:.2f}s")
         logger.debug(f"OpenOCD stdout:\n{result.stdout}")
         logger.debug(f"OpenOCD stderr:\n{result.stderr}")
 

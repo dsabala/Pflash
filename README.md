@@ -1,36 +1,29 @@
 # Pflash
-Pflash is the unofficial Phoenix RTOS flash utility.
+Pflash is a simple yet powerful command-line tool you can use to flash devices
+based on the Phoenix RTOS system.
 
-## Installation
+Unlike low-level tools that work underneath, it doesn't require you
+to closely monitor the flashing process. It automatically gathers information
+from project files like `nvm.yaml` and the configuration file `~/.config/pflash/config.json`.
 
-### 1. Manual Installation from the Repository with `pipx`
-To install Pflash directly from the repository:
+If something goes wrong, Pflash tries to exit gracefully with an informative error message.
+It also has a dry-run mode that prints out the raw shell commands you can run yourself.
 
-1. Clone the repository:
+## Quickstart
+
+### Manual installation from the repository
 ```bash
+# Clone repository
 git clone https://github.com/dsabala/pflash.git
 cd pflash
-```
-
-2. Install the application using `pipx`:
-```bash
+# Install package with pipx
 pipx install .
-```
-
-3. Verify the installation:
-```bash
-pflash --help
-```
-
-## Usage
-
-To see the available commands and options, run:
-```bash
+# Verify the installation and explore help message
 pflash --help
 pflash flash-via-ramdisk --help
 ```
 
-Example usage:
-```bash
-pflash -v flash-via-ramdisk -p aarch64a53-zynqmp-som -c /dev/ttyUSB0 plo kernel
-```
+## Development
+Run `poetry install` to install all dependencies, including development dependencies,
+this will create an isolated virtual environment for the project.
+Run pflash with `poetry run pflash`, format code with `poetry run black .`, run linter with `poetry run pylint .`.

@@ -50,7 +50,7 @@ def cli_entrypoint(ctx: click.Context = None, verbose: bool = False, dry: bool =
     logger.add(
         sys.stdout,
         level="DEBUG" if verbose else "INFO",
-        format="<level>{time:HH:mm:ss} {level} {message}</level>",
+        format="<level>{time:HH:mm:ss} {message}</level>",
     )
     if dry:
         logger.info("Dry run mode enabled. No changes will be made.")
@@ -89,7 +89,7 @@ def cli_entrypoint(ctx: click.Context = None, verbose: bool = False, dry: bool =
     "-r",
     "--root",
     type=str,
-    help="Path to the phoenix-rtos-project directory. If not passed it fallback to invokation dir",
+    help="Path to the phoenix-rtos-project directory. If not passed it fallback to invocation dir",
 )
 @click.pass_context
 def flash_via_ramdisk(ctx, parts: tuple[str, ...], cnsl: str, prj: str, root: str):

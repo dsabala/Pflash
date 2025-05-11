@@ -35,7 +35,7 @@ def boot_plo_naively(port: str, baud: int, dry: bool, total_timeout: int = 10):
                 time.sleep(0.05)
 
         if found_plo:
-            logger.info("Success: target is stopped in bootloader")
+            logger.success("Target is stopped in bootloader")
             return
 
         if not found_psh:
@@ -79,8 +79,9 @@ def plo_copy(
     total_timeout: int = 180,
 ):
     """Send 'copy' command to plo over serial interface"""
+    logger.info("Sending a command to plo requesting copy of data from ramdisk to flash memory")
     copy_command = f"copy ramdisk 0 {size} {alias} {offset} {size}"
-    logger.debug(f"Send copy command to plo: {copy_command}")
+    logger.debug(f"Copy command: '{copy_command}'")
 
     if dry:
         return
@@ -92,7 +93,6 @@ def plo_copy(
 
             # Send the copy command
             ser.write((copy_command + "\n").encode())
-            logger.info("Waiting for bootloader to finish copy...")
 
             while True:
                 if time.time() - start > total_timeout:
@@ -112,4 +112,4 @@ def plo_copy(
         raise
 
     duration = time.time() - start
-    logger.info(f"Successfully copied image to flash in {duration:.2f}s")
+    logger.success(f"Plo successfully copied image to flash in {duration:.2f}s")
