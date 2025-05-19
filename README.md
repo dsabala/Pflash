@@ -27,3 +27,12 @@ pflash flash-via-ramdisk --help
 Run `poetry install` to install all dependencies, including development dependencies,
 this will create an isolated virtual environment for the project.
 Run pflash with `poetry run pflash`, format code with `poetry run black .`, run linter with `poetry run pylint .`.
+
+## TODO
+- my Python skills are not very advanced, so I focused on isolating abstractions and making this tool attractive to use and co-create,
+  there are certainly some Pythonic improvements to be made
+- fix the function that enters the target into PLO if it discovers that the target is in the system (its buggy, I dont use it often)
+- add flash-via-PLO (using 2 serial connections)
+- consider adding flash-via-ethernet or other functionalities like for example flash-single-program functionality in the future
+- add a changelog and version information to the program
+- distribute the program with Pip
