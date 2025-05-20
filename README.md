@@ -9,6 +9,8 @@ from project files like `nvm.yaml` and the configuration file `~/.config/pflash/
 If something goes wrong, Pflash tries to exit gracefully with an informative error message.
 It also has a dry-run mode that prints out the raw shell commands you can run yourself.
 
+[![asciicast](https://asciinema.org/a/720195.svg)](https://asciinema.org/a/720195)
+
 ## Quickstart
 
 ### Manual installation from the repository
